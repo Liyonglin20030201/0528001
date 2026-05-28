@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { auth } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 const { validateRegister, validateLogin } = require('../middleware/validate');
 
 const router = express.Router();
@@ -78,6 +78,57 @@ router.get('/favorites', auth, async (req, res) => {
     res.json(user.favorites);
   } catch (error) {
     res.status(500).json({ message: '获取收藏列表失败' });
+  }
+});
+
+router.put('/certify-expert/:userId', auth, adminAuth, async (req, res) => {
+  try {
+    const { title, hospital, specialty, bio } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        role: 'expert',
+        expertInfo: {
+          title: title || '',
+          hospital: hospital || '',
+          specialty: specialty || '',
+          bio: bio || '',
+          certifiedAt: new Date()
+        }
+      },
+      { new: true }
+    ).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+    res.json({ message: '已认证为专家', user });
+  } catch (error) {
+    res.status(500).json({ message: '认证失败' });
+  }
+});
+
+router.put('/revoke-expert/:userId', auth, adminAuth, async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { role: 'user' },
+      { new: true }
+    ).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+    res.json({ message: '已撤销专家资格', user });
+  } catch (error) {
+    res.status(500).json({ message: '操作失败' });
+  }
+});
+
+router.get('/experts', async (req, res) => {
+  try {
+    const experts = await User.find({ role: 'expert' }).select('username expertInfo createdAt');
+    res.json(experts);
+  } catch (error) {
+    res.status(500).json({ message: '获取专家列表失败' });
   }
 });
 

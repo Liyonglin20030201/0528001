@@ -1,6 +1,11 @@
 <template>
   <div v-if="herb">
-    <button class="btn btn-secondary" @click="$router.back()" style="margin-bottom: 20px;">← 返回列表</button>
+    <div class="action-bar" style="margin-bottom: 20px; display: flex; gap: 12px;">
+      <button class="btn btn-secondary" @click="$router.back()">← 返回列表</button>
+      <button v-if="userStore.isLoggedIn" class="btn-learning" :class="{ active: learningStatus }" @click="toggleLearning">
+        {{ learningStatus === 'completed' ? '✓ 已学完' : learningStatus === 'learning' ? '📖 学习中' : '📖 标记学习' }}
+      </button>
+    </div>
     <div class="detail-card">
       <div class="detail-header">
         <div class="detail-image" v-if="herb.image">
@@ -38,16 +43,41 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '../stores/user'
 import api from '../utils/api'
 import { useMessage } from '../composables/useMessage'
 
-const { error } = useMessage()
+const { error, success } = useMessage()
 const route = useRoute()
+const userStore = useUserStore()
 const herb = ref(null)
+const learningStatus = ref(null)
+
+const toggleLearning = async () => {
+  try {
+    if (learningStatus.value) {
+      await api.delete(`/learning/mark/herb/${route.params.id}`)
+      learningStatus.value = null
+      success('已取消标记')
+    } else {
+      await api.post('/learning/mark', { targetType: 'herb', targetId: route.params.id, status: 'learning' })
+      learningStatus.value = 'learning'
+      success('已标记为学习中')
+    }
+  } catch (e) {
+    error('操作失败')
+  }
+}
 
 onMounted(async () => {
   try {
     herb.value = await api.get(`/herbs/${route.params.id}`)
+    if (userStore.isLoggedIn) {
+      api.post('/recommend/browse', { targetType: 'herb', targetId: route.params.id }).catch(() => {})
+      const progressData = await api.get('/learning/progress', { params: { targetType: 'herb' } })
+      const found = progressData.progress.find(p => p.targetId === route.params.id)
+      if (found) learningStatus.value = found.status
+    }
   } catch (e) {
     error('获取药材详情失败，请返回重试')
   }
@@ -67,4 +97,6 @@ onMounted(async () => {
 .detail-section h3 { color: #2c5f2d; margin-bottom: 8px; }
 .detail-section p { color: #555; line-height: 1.8; }
 .caution { color: #c0392b; }
+.btn-learning { background: none; border: 1px solid #ddd; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+.btn-learning.active { background: #d4edda; border-color: #28a745; color: #155724; }
 </style>

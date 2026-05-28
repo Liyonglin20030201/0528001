@@ -26,4 +26,11 @@ const adminAuth = async (req, res, next) => {
   next();
 };
 
-module.exports = { auth, adminAuth };
+const expertAuth = async (req, res, next) => {
+  if (req.user.role !== 'expert' && req.user.role !== 'admin') {
+    return res.status(403).json({ message: '需要专家权限' });
+  }
+  next();
+};
+
+module.exports = { auth, adminAuth, expertAuth };

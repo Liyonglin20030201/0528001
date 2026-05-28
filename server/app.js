@@ -14,6 +14,9 @@ const constitutionRoutes = require('./routes/constitution');
 const prescriptionRoutes = require('./routes/prescription');
 const commentRoutes = require('./routes/comment');
 const noteRoutes = require('./routes/note');
+const recommendRoutes = require('./routes/recommend');
+const learningRoutes = require('./routes/learning');
+const expertRoutes = require('./routes/expert');
 
 const app = express();
 
@@ -36,6 +39,9 @@ app.use('/api/constitution', constitutionRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/recommend', recommendRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/expert', expertRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

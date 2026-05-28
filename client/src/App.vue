@@ -10,8 +10,11 @@
           <router-link to="/prescriptions">方剂查询</router-link>
           <router-link to="/constitution">体质自测</router-link>
           <router-link to="/community">养生社区</router-link>
+          <router-link to="/expert-qa">专家问答</router-link>
           <router-link to="/masters">名家故事</router-link>
           <template v-if="userStore.isLoggedIn">
+            <router-link to="/recommend">个性推荐</router-link>
+            <router-link to="/learning">学习中心</router-link>
             <router-link to="/favorites">我的收藏</router-link>
             <router-link v-if="userStore.isAdmin" to="/admin">后台管理</router-link>
             <span class="nav-user">{{ userStore.user.username }}</span>

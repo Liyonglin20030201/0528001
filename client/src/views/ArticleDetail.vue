@@ -11,6 +11,9 @@
         <button v-if="userStore.isLoggedIn" class="btn-favorite" :class="{ active: isFavorited }" @click="handleFavorite">
           {{ isFavorited ? '★ 已收藏' : '☆ 收藏' }}
         </button>
+        <button v-if="userStore.isLoggedIn" class="btn-learning" :class="{ active: learningStatus }" @click="toggleLearning">
+          {{ learningStatus === 'completed' ? '✓ 已学完' : learningStatus === 'learning' ? '📖 学习中' : '📖 标记学习' }}
+        </button>
       </div>
       <div class="article-content" v-html="renderContent(article.content)"></div>
       <CommentSection :articleId="route.params.id" />
@@ -27,11 +30,12 @@ import api from '../utils/api'
 import { useMessage } from '../composables/useMessage'
 import CommentSection from '../components/CommentSection.vue'
 
-const { error } = useMessage()
+const { error, success } = useMessage()
 const route = useRoute()
 const userStore = useUserStore()
 const article = ref(null)
 const isFavorited = ref(false)
+const learningStatus = ref(null)
 
 const categoryLabels = {
   spring: '春季养生', summer: '夏季养生', autumn: '秋季养生', winter: '冬季养生',
@@ -61,12 +65,32 @@ const handleFavorite = async () => {
   }
 }
 
+const toggleLearning = async () => {
+  try {
+    if (learningStatus.value) {
+      await api.delete(`/learning/mark/article/${route.params.id}`)
+      learningStatus.value = null
+      success('已取消标记')
+    } else {
+      await api.post('/learning/mark', { targetType: 'article', targetId: route.params.id, status: 'learning' })
+      learningStatus.value = 'learning'
+      success('已标记为学习中')
+    }
+  } catch (e) {
+    error('操作失败')
+  }
+}
+
 onMounted(async () => {
   try {
     article.value = await api.get(`/articles/${route.params.id}`)
     if (userStore.isLoggedIn) {
       const favorites = await userStore.getFavorites()
       isFavorited.value = favorites.some(f => f._id === route.params.id)
+      api.post('/recommend/browse', { targetType: 'article', targetId: route.params.id }).catch(() => {})
+      const progressData = await api.get('/learning/progress', { params: { targetType: 'article' } })
+      const found = progressData.progress.find(p => p.targetId === route.params.id)
+      if (found) learningStatus.value = found.status
     }
   } catch (e) {
     error('获取文章详情失败，请返回重试')
@@ -85,4 +109,6 @@ onMounted(async () => {
 .article-content :deep(li) { margin: 4px 0; }
 .btn-favorite { background: none; border: 1px solid #ddd; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
 .btn-favorite.active { background: #fff3cd; border-color: #ffc107; color: #856404; }
+.btn-learning { background: none; border: 1px solid #ddd; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+.btn-learning.active { background: #d4edda; border-color: #28a745; color: #155724; }
 </style>

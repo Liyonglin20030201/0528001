@@ -26,13 +26,28 @@
         <h3>体质自测</h3>
         <p>测测您的中医体质，获取养生建议</p>
       </div>
+      <div class="feature-card" @click="$router.push('/recommend')">
+        <div class="feature-icon">🎯</div>
+        <h3>个性推荐</h3>
+        <p>根据体质和浏览记录，智能推荐药材文章</p>
+      </div>
+      <div class="feature-card" @click="$router.push('/learning')">
+        <div class="feature-icon">📚</div>
+        <h3>学习中心</h3>
+        <p>追踪学习进度，每日打卡坚持学习</p>
+      </div>
+      <div class="feature-card" @click="$router.push('/expert-qa')">
+        <div class="feature-icon">👨‍⚕️</div>
+        <h3>专家问答</h3>
+        <p>认证中医师在线答疑，专业指导</p>
+      </div>
       <div class="feature-card" @click="$router.push('/community')">
         <div class="feature-icon">💬</div>
         <h3>养生社区</h3>
         <p>分享养生心得，交流健康经验</p>
       </div>
       <div class="feature-card" @click="$router.push('/masters')">
-        <div class="feature-icon">👨‍⚕️</div>
+        <div class="feature-icon">🏆</div>
         <h3>名家故事</h3>
         <p>走近古代中医名家的传奇人生</p>
       </div>
