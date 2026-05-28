@@ -12,6 +12,11 @@
         <h3>药材管理</h3>
         <p>添加、编辑、删除中药材信息</p>
       </div>
+      <div class="card admin-card" @click="$router.push('/admin/prescriptions')">
+        <div class="admin-icon">📜</div>
+        <h3>方剂管理</h3>
+        <p>添加、编辑、删除经典方剂</p>
+      </div>
       <div class="card admin-card" @click="$router.push('/admin/masters')">
         <div class="admin-icon">👨‍⚕️</div>
         <h3>名家管理</h3>
