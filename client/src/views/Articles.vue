@@ -49,7 +49,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const articles = ref([])
 const selectedCategory = ref('')
 const keyword = ref('')
@@ -76,7 +78,7 @@ const fetchArticles = async () => {
     articles.value = data.articles
     totalPages.value = data.pages
   } catch (e) {
-    console.error(e)
+    error('获取文章列表失败，请刷新重试')
   } finally {
     loading.value = false
   }

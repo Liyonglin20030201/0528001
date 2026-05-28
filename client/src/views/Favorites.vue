@@ -22,7 +22,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const userStore = useUserStore()
 const favorites = ref([])
 const loading = ref(false)
@@ -41,7 +43,7 @@ onMounted(async () => {
   try {
     favorites.value = await userStore.getFavorites()
   } catch (e) {
-    console.error(e)
+    error('获取收藏列表失败，请刷新重试')
   } finally {
     loading.value = false
   }

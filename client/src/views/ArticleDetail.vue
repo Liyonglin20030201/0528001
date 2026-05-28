@@ -23,7 +23,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const route = useRoute()
 const userStore = useUserStore()
 const article = ref(null)
@@ -53,7 +55,7 @@ const handleFavorite = async () => {
     const data = await userStore.toggleFavorite(article.value._id)
     isFavorited.value = data.isFavorited
   } catch (e) {
-    console.error(e)
+    error('收藏操作失败，请稍后重试')
   }
 }
 
@@ -65,7 +67,7 @@ onMounted(async () => {
       isFavorited.value = favorites.some(f => f._id === route.params.id)
     }
   } catch (e) {
-    console.error(e)
+    error('获取文章详情失败，请返回重试')
   }
 })
 </script>

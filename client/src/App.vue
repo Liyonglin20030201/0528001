@@ -27,12 +27,14 @@
     <footer class="footer">
       <p>中医药文化科普网站 &copy; 2024 | 弘扬中医药文化，传承千年智慧</p>
     </footer>
+    <Toast />
   </div>
 </template>
 
 <script setup>
 import { useUserStore } from './stores/user'
 import { useRouter } from 'vue-router'
+import Toast from './components/Toast.vue'
 
 const userStore = useUserStore()
 const router = useRouter()

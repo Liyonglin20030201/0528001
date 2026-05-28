@@ -42,7 +42,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const articles = ref([])
 
 const categoryLabels = {
@@ -59,7 +61,7 @@ onMounted(async () => {
     const data = await api.get('/articles?limit=6')
     articles.value = data.articles
   } catch (e) {
-    console.error(e)
+    error('加载文章失败，请刷新页面重试')
   }
 })
 </script>

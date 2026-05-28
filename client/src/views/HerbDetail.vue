@@ -39,7 +39,9 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const route = useRoute()
 const herb = ref(null)
 
@@ -47,7 +49,7 @@ onMounted(async () => {
   try {
     herb.value = await api.get(`/herbs/${route.params.id}`)
   } catch (e) {
-    console.error(e)
+    error('获取药材详情失败，请返回重试')
   }
 })
 </script>

@@ -11,21 +11,28 @@
         <form @submit.prevent="handleSubmit">
           <div class="form-row">
             <div class="form-group">
-              <label>姓名</label>
-              <input v-model="form.name" required />
+              <label>姓名 <span class="required">*</span></label>
+              <input v-model="form.name" required maxlength="20" placeholder="如：华佗" />
+              <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
             </div>
             <div class="form-group">
-              <label>朝代</label>
-              <input v-model="form.dynasty" required placeholder="如：唐代、明代" />
+              <label>朝代 <span class="required">*</span></label>
+              <input v-model="form.dynasty" required maxlength="20" placeholder="如：东汉、唐代" />
+              <span v-if="errors.dynasty" class="field-error">{{ errors.dynasty }}</span>
             </div>
+          </div>
+          <div class="form-group">
+            <label>名家画像</label>
+            <ImageUpload v-model="form.portrait" placeholder="上传画像" />
           </div>
           <div class="form-group">
             <label>主要贡献</label>
-            <input v-model="form.contribution" />
+            <input v-model="form.contribution" maxlength="200" placeholder="概述其主要医学贡献" />
           </div>
           <div class="form-group">
-            <label>生平简介</label>
-            <textarea v-model="form.biography" rows="6" required></textarea>
+            <label>生平简介 <span class="required">*</span></label>
+            <textarea v-model="form.biography" rows="6" required placeholder="详细介绍名家生平"></textarea>
+            <span v-if="errors.biography" class="field-error">{{ errors.biography }}</span>
           </div>
           <div class="form-group">
             <label>经典故事（每行一个故事）</label>
@@ -33,10 +40,12 @@
           </div>
           <div class="form-group">
             <label>代表著作（每行一部）</label>
-            <textarea v-model="worksText" rows="3" placeholder="每行输入一部著作"></textarea>
+            <textarea v-model="worksText" rows="3" placeholder="每行输入一部著作名称"></textarea>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">{{ editingId ? '更新' : '添加' }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="submitting">
+              {{ submitting ? '提交中...' : (editingId ? '更新' : '添加') }}
+            </button>
             <button type="button" class="btn btn-secondary" @click="showForm = false">取消</button>
           </div>
         </form>
@@ -67,21 +76,42 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../utils/api'
+import ImageUpload from '../../components/ImageUpload.vue'
+import { useMessage } from '../../composables/useMessage'
+
+const { success, error } = useMessage()
 
 const masters = ref([])
 const page = ref(1)
 const totalPages = ref(1)
 const showForm = ref(false)
 const editingId = ref(null)
-const form = ref({ name: '', dynasty: '', biography: '', contribution: '' })
+const submitting = ref(false)
+const errors = ref({})
+const form = ref({ name: '', dynasty: '', biography: '', contribution: '', portrait: '' })
 const storiesText = ref('')
 const worksText = ref('')
 
 const resetForm = () => {
   editingId.value = null
-  form.value = { name: '', dynasty: '', biography: '', contribution: '' }
+  errors.value = {}
+  form.value = { name: '', dynasty: '', biography: '', contribution: '', portrait: '' }
   storiesText.value = ''
   worksText.value = ''
+}
+
+const validate = () => {
+  errors.value = {}
+  if (!form.value.name || form.value.name.trim().length < 1) {
+    errors.value.name = '请输入名家姓名'
+  }
+  if (!form.value.dynasty || form.value.dynasty.trim().length < 1) {
+    errors.value.dynasty = '请输入朝代'
+  }
+  if (!form.value.biography || form.value.biography.trim().length < 10) {
+    errors.value.biography = '生平简介至少需要10个字符'
+  }
+  return Object.keys(errors.value).length === 0
 }
 
 const fetchMasters = async () => {
@@ -90,11 +120,13 @@ const fetchMasters = async () => {
     masters.value = data.masters
     totalPages.value = data.pages
   } catch (e) {
-    console.error(e)
+    error('获取名家列表失败，请刷新重试')
   }
 }
 
 const handleSubmit = async () => {
+  if (!validate()) return
+  submitting.value = true
   try {
     const payload = {
       ...form.value,
@@ -103,32 +135,42 @@ const handleSubmit = async () => {
     }
     if (editingId.value) {
       await api.put(`/masters/${editingId.value}`, payload)
+      success('名家信息更新成功')
     } else {
       await api.post('/masters', payload)
+      success('名家添加成功')
     }
     showForm.value = false
     fetchMasters()
   } catch (e) {
-    alert(e.message || '操作失败')
+    error(e.message || '操作失败，请检查内容后重试')
+  } finally {
+    submitting.value = false
   }
 }
 
 const editMaster = async (master) => {
-  const full = await api.get(`/masters/${master._id}`)
-  editingId.value = master._id
-  form.value = { name: full.name, dynasty: full.dynasty, biography: full.biography, contribution: full.contribution }
-  storiesText.value = (full.stories || []).join('\n')
-  worksText.value = (full.famousWorks || []).join('\n')
-  showForm.value = true
+  try {
+    const full = await api.get(`/masters/${master._id}`)
+    editingId.value = master._id
+    errors.value = {}
+    form.value = { name: full.name, dynasty: full.dynasty, biography: full.biography, contribution: full.contribution || '', portrait: full.portrait || '' }
+    storiesText.value = (full.stories || []).join('\n')
+    worksText.value = (full.famousWorks || []).join('\n')
+    showForm.value = true
+  } catch (e) {
+    error('获取名家详情失败')
+  }
 }
 
 const deleteMaster = async (id) => {
-  if (!confirm('确认删除此名家？')) return
+  if (!confirm('确认删除此名家？删除后不可恢复。')) return
   try {
     await api.delete(`/masters/${id}`)
+    success('名家已删除')
     fetchMasters()
   } catch (e) {
-    alert('删除失败')
+    error('删除失败，请稍后重试')
   }
 }
 
@@ -145,4 +187,6 @@ onMounted(() => fetchMasters())
 .list-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
 .item-info h3 { color: #333; margin-bottom: 4px; }
 .item-actions { display: flex; gap: 8px; }
+.required { color: #dc3545; }
+.field-error { color: #dc3545; font-size: 0.8rem; margin-top: 4px; display: block; }
 </style>

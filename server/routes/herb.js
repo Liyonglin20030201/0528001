@@ -1,6 +1,7 @@
 const express = require('express');
 const Herb = require('../models/Herb');
 const { auth, adminAuth } = require('../middleware/auth');
+const { validateHerb } = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -45,7 +46,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', auth, adminAuth, async (req, res) => {
+router.post('/', auth, adminAuth, validateHerb, async (req, res) => {
   try {
     const herb = new Herb(req.body);
     await herb.save();
@@ -55,7 +56,7 @@ router.post('/', auth, adminAuth, async (req, res) => {
   }
 });
 
-router.put('/:id', auth, adminAuth, async (req, res) => {
+router.put('/:id', auth, adminAuth, validateHerb, async (req, res) => {
   try {
     const herb = await Herb.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!herb) return res.status(404).json({ message: '药材不存在' });

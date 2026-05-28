@@ -1,6 +1,7 @@
 const express = require('express');
 const Article = require('../models/Article');
 const { auth, adminAuth } = require('../middleware/auth');
+const { validateArticle } = require('../middleware/validate');
 
 const router = express.Router();
 
@@ -42,7 +43,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', auth, adminAuth, async (req, res) => {
+router.post('/', auth, adminAuth, validateArticle, async (req, res) => {
   try {
     const article = new Article({ ...req.body, author: req.user._id });
     await article.save();
@@ -52,7 +53,7 @@ router.post('/', auth, adminAuth, async (req, res) => {
   }
 });
 
-router.put('/:id', auth, adminAuth, async (req, res) => {
+router.put('/:id', auth, adminAuth, validateArticle, async (req, res) => {
   try {
     const article = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!article) return res.status(404).json({ message: '文章不存在' });

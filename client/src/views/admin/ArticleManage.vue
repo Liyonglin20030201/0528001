@@ -10,11 +10,12 @@
         <h2>{{ editingId ? '编辑文章' : '发布文章' }}</h2>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label>标题</label>
-            <input v-model="form.title" required />
+            <label>标题 <span class="required">*</span></label>
+            <input v-model="form.title" required maxlength="100" placeholder="请输入文章标题（2-100字）" />
+            <span v-if="errors.title" class="field-error">{{ errors.title }}</span>
           </div>
           <div class="form-group">
-            <label>分类</label>
+            <label>分类 <span class="required">*</span></label>
             <select v-model="form.category" required>
               <option value="spring">春季养生</option>
               <option value="summer">夏季养生</option>
@@ -29,15 +30,22 @@
             </select>
           </div>
           <div class="form-group">
-            <label>摘要</label>
-            <input v-model="form.summary" />
+            <label>封面图片</label>
+            <ImageUpload v-model="form.coverImage" placeholder="上传封面图" />
           </div>
           <div class="form-group">
-            <label>内容（支持 ## 标题和 - 列表）</label>
-            <textarea v-model="form.content" rows="12" required></textarea>
+            <label>摘要</label>
+            <input v-model="form.summary" maxlength="200" placeholder="简短描述文章主旨（选填，最多200字）" />
+          </div>
+          <div class="form-group">
+            <label>内容 <span class="required">*</span>（支持 ## 标题和 - 列表）</label>
+            <textarea v-model="form.content" rows="12" required placeholder="请输入文章正文内容"></textarea>
+            <span v-if="errors.content" class="field-error">{{ errors.content }}</span>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">{{ editingId ? '更新' : '发布' }}</button>
+            <button type="submit" class="btn btn-primary" :disabled="submitting">
+              {{ submitting ? '提交中...' : (editingId ? '更新' : '发布') }}
+            </button>
             <button type="button" class="btn btn-secondary" @click="showForm = false">取消</button>
           </div>
         </form>
@@ -69,13 +77,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../utils/api'
+import ImageUpload from '../../components/ImageUpload.vue'
+import { useMessage } from '../../composables/useMessage'
+
+const { success, error } = useMessage()
 
 const articles = ref([])
 const page = ref(1)
 const totalPages = ref(1)
 const showForm = ref(false)
 const editingId = ref(null)
-const form = ref({ title: '', category: 'general', summary: '', content: '' })
+const submitting = ref(false)
+const errors = ref({})
+const form = ref({ title: '', category: 'general', summary: '', content: '', coverImage: '' })
 
 const categoryLabels = {
   spring: '春季养生', summer: '夏季养生', autumn: '秋季养生', winter: '冬季养生',
@@ -87,7 +101,19 @@ const formatDate = (date) => new Date(date).toLocaleDateString('zh-CN')
 
 const resetForm = () => {
   editingId.value = null
-  form.value = { title: '', category: 'general', summary: '', content: '' }
+  errors.value = {}
+  form.value = { title: '', category: 'general', summary: '', content: '', coverImage: '' }
+}
+
+const validate = () => {
+  errors.value = {}
+  if (!form.value.title || form.value.title.trim().length < 2) {
+    errors.value.title = '标题至少需要2个字符'
+  }
+  if (!form.value.content || form.value.content.trim().length < 10) {
+    errors.value.content = '文章内容至少需要10个字符'
+  }
+  return Object.keys(errors.value).length === 0
 }
 
 const fetchArticles = async () => {
@@ -96,38 +122,50 @@ const fetchArticles = async () => {
     articles.value = data.articles
     totalPages.value = data.pages
   } catch (e) {
-    console.error(e)
+    error('获取文章列表失败，请刷新重试')
   }
 }
 
 const handleSubmit = async () => {
+  if (!validate()) return
+  submitting.value = true
   try {
     if (editingId.value) {
       await api.put(`/articles/${editingId.value}`, form.value)
+      success('文章更新成功')
     } else {
       await api.post('/articles', form.value)
+      success('文章发布成功')
     }
     showForm.value = false
     fetchArticles()
   } catch (e) {
-    alert(e.message || '操作失败')
+    error(e.message || '操作失败，请检查内容后重试')
+  } finally {
+    submitting.value = false
   }
 }
 
 const editArticle = async (article) => {
-  const full = await api.get(`/articles/${article._id}`)
-  editingId.value = article._id
-  form.value = { title: full.title, category: full.category, summary: full.summary, content: full.content }
-  showForm.value = true
+  try {
+    const full = await api.get(`/articles/${article._id}`)
+    editingId.value = article._id
+    errors.value = {}
+    form.value = { title: full.title, category: full.category, summary: full.summary, content: full.content, coverImage: full.coverImage || '' }
+    showForm.value = true
+  } catch (e) {
+    error('获取文章详情失败')
+  }
 }
 
 const deleteArticle = async (id) => {
-  if (!confirm('确认删除此文章？')) return
+  if (!confirm('确认删除此文章？删除后不可恢复。')) return
   try {
     await api.delete(`/articles/${id}`)
+    success('文章已删除')
     fetchArticles()
   } catch (e) {
-    alert('删除失败')
+    error('删除失败，请稍后重试')
   }
 }
 
@@ -144,4 +182,6 @@ onMounted(() => fetchArticles())
 .item-info h3 { color: #333; margin-bottom: 4px; }
 .item-actions { display: flex; gap: 8px; }
 .meta { color: #999; font-size: 0.8rem; margin-left: 8px; }
+.required { color: #dc3545; }
+.field-error { color: #dc3545; font-size: 0.8rem; margin-top: 4px; display: block; }
 </style>

@@ -31,7 +31,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const masters = ref([])
 const dynasties = ref([])
 const selectedDynasty = ref('')
@@ -48,7 +50,7 @@ const fetchMasters = async () => {
     masters.value = data.masters
     totalPages.value = data.pages
   } catch (e) {
-    console.error(e)
+    error('获取名家列表失败，请刷新重试')
   } finally {
     loading.value = false
   }
@@ -58,7 +60,7 @@ onMounted(async () => {
   try {
     dynasties.value = await api.get('/masters/dynasties')
   } catch (e) {
-    console.error(e)
+    error('获取朝代列表失败')
   }
   fetchMasters()
 })

@@ -38,7 +38,9 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const route = useRoute()
 const master = ref(null)
 
@@ -46,7 +48,7 @@ onMounted(async () => {
   try {
     master.value = await api.get(`/masters/${route.params.id}`)
   } catch (e) {
-    console.error(e)
+    error('获取名家详情失败，请返回重试')
   }
 })
 </script>

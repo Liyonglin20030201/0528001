@@ -2,10 +2,11 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
+const { validateRegister, validateLogin } = require('../middleware/validate');
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', validateRegister, async (req, res) => {
   try {
     const { username, password, email } = req.body;
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -25,7 +26,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validateLogin, async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });

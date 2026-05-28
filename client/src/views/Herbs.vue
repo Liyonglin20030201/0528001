@@ -38,7 +38,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../utils/api'
+import { useMessage } from '../composables/useMessage'
 
+const { error } = useMessage()
 const herbs = ref([])
 const categories = ref([])
 const selectedCategory = ref('')
@@ -57,7 +59,7 @@ const fetchHerbs = async () => {
     herbs.value = data.herbs
     totalPages.value = data.pages
   } catch (e) {
-    console.error(e)
+    error('获取药材列表失败，请刷新重试')
   } finally {
     loading.value = false
   }
@@ -67,7 +69,7 @@ const fetchCategories = async () => {
   try {
     categories.value = await api.get('/herbs/categories')
   } catch (e) {
-    console.error(e)
+    error('获取药材分类失败')
   }
 }
 
