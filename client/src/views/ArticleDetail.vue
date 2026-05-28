@@ -13,6 +13,7 @@
         </button>
       </div>
       <div class="article-content" v-html="renderContent(article.content)"></div>
+      <CommentSection :articleId="route.params.id" />
     </div>
   </div>
   <div v-else class="loading">加载中...</div>
@@ -24,6 +25,7 @@ import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import api from '../utils/api'
 import { useMessage } from '../composables/useMessage'
+import CommentSection from '../components/CommentSection.vue'
 
 const { error } = useMessage()
 const route = useRoute()

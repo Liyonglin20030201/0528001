@@ -7,6 +7,9 @@
           <router-link to="/">首页</router-link>
           <router-link to="/herbs">药材百科</router-link>
           <router-link to="/articles">养生文章</router-link>
+          <router-link to="/prescriptions">方剂查询</router-link>
+          <router-link to="/constitution">体质自测</router-link>
+          <router-link to="/community">养生社区</router-link>
           <router-link to="/masters">名家故事</router-link>
           <template v-if="userStore.isLoggedIn">
             <router-link to="/favorites">我的收藏</router-link>

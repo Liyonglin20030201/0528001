@@ -16,6 +16,21 @@
         <h3>养生文章</h3>
         <p>按季节和体质获取科普养生知识</p>
       </div>
+      <div class="feature-card" @click="$router.push('/prescriptions')">
+        <div class="feature-icon">📜</div>
+        <h3>方剂查询</h3>
+        <p>查询经典方剂，了解组成与主治</p>
+      </div>
+      <div class="feature-card" @click="$router.push('/constitution')">
+        <div class="feature-icon">🔍</div>
+        <h3>体质自测</h3>
+        <p>测测您的中医体质，获取养生建议</p>
+      </div>
+      <div class="feature-card" @click="$router.push('/community')">
+        <div class="feature-icon">💬</div>
+        <h3>养生社区</h3>
+        <p>分享养生心得，交流健康经验</p>
+      </div>
       <div class="feature-card" @click="$router.push('/masters')">
         <div class="feature-icon">👨‍⚕️</div>
         <h3>名家故事</h3>

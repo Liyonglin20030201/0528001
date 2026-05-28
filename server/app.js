@@ -10,6 +10,10 @@ const herbRoutes = require('./routes/herb');
 const articleRoutes = require('./routes/article');
 const masterRoutes = require('./routes/master');
 const uploadRoutes = require('./routes/upload');
+const constitutionRoutes = require('./routes/constitution');
+const prescriptionRoutes = require('./routes/prescription');
+const commentRoutes = require('./routes/comment');
+const noteRoutes = require('./routes/note');
 
 const app = express();
 
@@ -28,6 +32,10 @@ app.use('/api/herbs', herbRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/masters', masterRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/constitution', constitutionRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/notes', noteRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

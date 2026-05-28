@@ -5,6 +5,7 @@ const User = require('./models/User');
 const Herb = require('./models/Herb');
 const Article = require('./models/Article');
 const Master = require('./models/Master');
+const Prescription = require('./models/Prescription');
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tcm_culture';
 
@@ -17,6 +18,7 @@ const seedData = async () => {
     await Herb.deleteMany({});
     await Article.deleteMany({});
     await Master.deleteMany({});
+    await Prescription.deleteMany({});
 
     const admin = new User({
       username: 'admin',
@@ -73,6 +75,23 @@ const seedData = async () => {
     ];
     await Master.insertMany(masters);
     console.log(`${masters.length} 位名家数据已导入`);
+
+    const prescriptions = [
+      { name: '麻黄汤', source: '《伤寒论》', category: '解表剂', composition: [{ herb: '麻黄', dosage: '9g' }, { herb: '桂枝', dosage: '6g' }, { herb: '杏仁', dosage: '6g' }, { herb: '甘草', dosage: '3g' }], method: '水煎服，温覆取微似汗', effect: '发汗解表，宣肺平喘', indication: '外感风寒表实证。恶寒发热，头身疼痛，无汗而喘，舌苔薄白，脉浮紧', analysis: '麻黄为君，发汗解表、宣肺平喘；桂枝为臣，助麻黄发汗解表；杏仁为佐，助麻黄平喘；甘草为使，调和诸药', caution: '体虚自汗者忌用' },
+      { name: '桂枝汤', source: '《伤寒论》', category: '解表剂', composition: [{ herb: '桂枝', dosage: '9g' }, { herb: '芍药', dosage: '9g' }, { herb: '生姜', dosage: '9g' }, { herb: '大枣', dosage: '3枚' }, { herb: '甘草', dosage: '6g' }], method: '水煎服，服后啜粥，温覆取汗', effect: '解肌发表，调和营卫', indication: '外感风寒表虚证。发热头痛，汗出恶风，鼻鸣干呕，苔白不渴，脉浮缓或浮弱', analysis: '桂枝为君，解肌发表、温通经脉；芍药为臣，益阴敛营；生姜、大枣为佐，调和脾胃；甘草为使，调和诸药', caution: '表实无汗者不宜' },
+      { name: '四君子汤', source: '《太平惠民和剂局方》', category: '补益剂', composition: [{ herb: '人参', dosage: '9g' }, { herb: '白术', dosage: '9g' }, { herb: '茯苓', dosage: '9g' }, { herb: '甘草', dosage: '6g' }], method: '水煎服', effect: '益气健脾', indication: '脾胃气虚证。面色萎白，语声低微，气短乏力，食少便溏，舌淡苔白，脉虚弱', analysis: '人参为君，大补元气、健脾养胃；白术为臣，健脾燥湿；茯苓为佐，健脾渗湿；甘草为使，益气和中、调和诸药', caution: '阴虚内热者慎用' },
+      { name: '四物汤', source: '《太平惠民和剂局方》', category: '补益剂', composition: [{ herb: '当归', dosage: '12g' }, { herb: '川芎', dosage: '9g' }, { herb: '白芍', dosage: '12g' }, { herb: '熟地黄', dosage: '12g' }], method: '水煎服', effect: '补血调经', indication: '营血虚滞证。心悸失眠，头晕目眩，面色无华，妇人月经不调，量少或经闭不行，脐腹作痛，舌淡，脉细弦或细涩', analysis: '熟地黄为君，滋阴养血填精；当归为臣，补血活血调经；白芍为佐，养血柔肝；川芎为使，活血行气', caution: '脾虚食少便溏者慎用' },
+      { name: '六味地黄丸', source: '《小儿药证直诀》', category: '补益剂', composition: [{ herb: '熟地黄', dosage: '24g' }, { herb: '山茱萸', dosage: '12g' }, { herb: '山药', dosage: '12g' }, { herb: '泽泻', dosage: '9g' }, { herb: '牡丹皮', dosage: '9g' }, { herb: '茯苓', dosage: '9g' }], method: '研末蜜丸，每次9g，每日2次', effect: '滋阴补肾', indication: '肾阴虚证。腰膝酸软，头晕目眩，耳鸣耳聋，盗汗遗精，骨蒸潮热，手足心热，舌红少苔，脉细数', analysis: '熟地黄为君，滋阴补肾填精；山茱萸、山药为臣，补肝脾以助肾；泽泻、牡丹皮、茯苓为佐使，泻三脏之浊', caution: '脾虚泄泻者慎用' },
+      { name: '补中益气汤', source: '《脾胃论》', category: '补益剂', composition: [{ herb: '黄芪', dosage: '18g' }, { herb: '甘草', dosage: '9g' }, { herb: '人参', dosage: '6g' }, { herb: '当归', dosage: '3g' }, { herb: '陈皮', dosage: '6g' }, { herb: '升麻', dosage: '6g' }, { herb: '柴胡', dosage: '6g' }, { herb: '白术', dosage: '9g' }], method: '水煎服', effect: '补中益气，升阳举陷', indication: '脾虚气陷证。饮食减少，体倦肢软，少气懒言，面色萎黄，大便稀溏，脉虚；及脱肛、子宫脱垂、久泻久痢等', analysis: '黄芪为君，补中益气、升阳固表；人参、白术、甘草为臣，益气健脾；当归养血，陈皮理气为佐；升麻、柴胡升举清阳为使', caution: '阴虚发热者忌用' },
+      { name: '逍遥散', source: '《太平惠民和剂局方》', category: '和解剂', composition: [{ herb: '柴胡', dosage: '9g' }, { herb: '当归', dosage: '9g' }, { herb: '白芍', dosage: '9g' }, { herb: '白术', dosage: '9g' }, { herb: '茯苓', dosage: '9g' }, { herb: '甘草', dosage: '6g' }, { herb: '薄荷', dosage: '3g' }, { herb: '生姜', dosage: '3g' }], method: '水煎服', effect: '疏肝解郁，养血健脾', indication: '肝郁血虚脾弱证。两胁作痛，头痛目眩，口燥咽干，神疲食少，或月经不调，乳房胀痛，脉弦而虚', analysis: '柴胡为君，疏肝解郁；当归、白芍为臣，养血柔肝；白术、茯苓为佐，健脾祛湿；甘草为使，调和诸药；薄荷助柴胡疏肝；生姜温胃和中', caution: '阴虚血热者慎用' },
+      { name: '小柴胡汤', source: '《伤寒论》', category: '和解剂', composition: [{ herb: '柴胡', dosage: '24g' }, { herb: '黄芩', dosage: '9g' }, { herb: '人参', dosage: '6g' }, { herb: '半夏', dosage: '9g' }, { herb: '甘草', dosage: '6g' }, { herb: '生姜', dosage: '9g' }, { herb: '大枣', dosage: '4枚' }], method: '水煎服', effect: '和解少阳', indication: '伤寒少阳证。往来寒热，胸胁苦满，默默不欲饮食，心烦喜呕，口苦，咽干，目眩，舌苔薄白，脉弦', analysis: '柴胡为君，疏邪透表、疏泄气机；黄芩为臣，清少阳之热；半夏、生姜为佐，和胃降逆止呕；人参、大枣为佐，益气健脾扶正；甘草为使，调和诸药', caution: '阴虚血少者慎用' },
+      { name: '银翘散', source: '《温病条辨》', category: '解表剂', composition: [{ herb: '金银花', dosage: '15g' }, { herb: '连翘', dosage: '15g' }, { herb: '薄荷', dosage: '6g' }, { herb: '荆芥穗', dosage: '6g' }, { herb: '淡豆豉', dosage: '5g' }, { herb: '牛蒡子', dosage: '6g' }, { herb: '桔梗', dosage: '6g' }, { herb: '竹叶', dosage: '4g' }, { herb: '甘草', dosage: '5g' }, { herb: '芦根', dosage: '30g' }], method: '水煎服，香气大出即取服，不可久煎', effect: '辛凉透表，清热解毒', indication: '温病初起。发热无汗或有汗不畅，微恶风寒，头痛口渴，咳嗽咽痛，舌尖红，苔薄白或薄黄，脉浮数', analysis: '金银花、连翘为君，清热解毒、辛凉透表；薄荷、荆芥穗、淡豆豉为臣，辛散表邪；桔梗、牛蒡子为佐，宣肺利咽；竹叶、芦根为佐，清热生津；甘草为使，调和诸药', caution: '风寒表证忌用' },
+      { name: '龙胆泻肝汤', source: '《医方集解》', category: '清热剂', composition: [{ herb: '龙胆草', dosage: '6g' }, { herb: '黄芩', dosage: '9g' }, { herb: '栀子', dosage: '9g' }, { herb: '泽泻', dosage: '12g' }, { herb: '木通', dosage: '6g' }, { herb: '车前子', dosage: '9g' }, { herb: '当归', dosage: '3g' }, { herb: '生地黄', dosage: '9g' }, { herb: '柴胡', dosage: '6g' }, { herb: '甘草', dosage: '6g' }], method: '水煎服', effect: '清泻肝胆实火，清利肝经湿热', indication: '肝胆实火上炎证或肝经湿热下注证。头痛目赤，胁痛口苦，耳聋耳肿；或阴肿阴痒，筋痿阴汗，小便淋浊，妇女带下黄臭', analysis: '龙胆草为君，泻肝胆实火、清下焦湿热；黄芩、栀子为臣，清热燥湿泻火；泽泻、木通、车前子为佐，利湿清热；当归、生地黄为佐，养血滋阴；柴胡为引经使药；甘草为使，调和诸药', caution: '脾胃虚寒者忌用' },
+      { name: '归脾汤', source: '《济生方》', category: '补益剂', composition: [{ herb: '白术', dosage: '9g' }, { herb: '茯苓', dosage: '9g' }, { herb: '黄芪', dosage: '12g' }, { herb: '龙眼肉', dosage: '12g' }, { herb: '酸枣仁', dosage: '12g' }, { herb: '人参', dosage: '6g' }, { herb: '木香', dosage: '6g' }, { herb: '甘草', dosage: '3g' }, { herb: '当归', dosage: '9g' }, { herb: '远志', dosage: '6g' }], method: '水煎服', effect: '益气补血，健脾养心', indication: '心脾气血两虚证。心悸怔忡，健忘失眠，盗汗虚热，体倦食少，面色萎黄，舌淡苔薄白，脉细弱；脾不统血证', analysis: '黄芪、人参、白术、甘草为君臣，益气补脾；当归、龙眼肉为臣，补血养心；酸枣仁、远志为佐，宁心安神；茯苓为佐，健脾宁心；木香为使，理气醒脾', caution: '外感发热者忌用' },
+      { name: '血府逐瘀汤', source: '《医林改错》', category: '理血剂', composition: [{ herb: '桃仁', dosage: '12g' }, { herb: '红花', dosage: '9g' }, { herb: '当归', dosage: '9g' }, { herb: '生地黄', dosage: '9g' }, { herb: '川芎', dosage: '5g' }, { herb: '赤芍', dosage: '6g' }, { herb: '牛膝', dosage: '9g' }, { herb: '桔梗', dosage: '5g' }, { herb: '柴胡', dosage: '3g' }, { herb: '枳壳', dosage: '6g' }, { herb: '甘草', dosage: '3g' }], method: '水煎服', effect: '活血化瘀，行气止痛', indication: '胸中血瘀证。胸痛头痛，日久不愈，痛如针刺而有定处，或呃逆日久不止，或内热瞀闷，或心悸怔忡失眠多梦，急躁易怒，入暮潮热，唇暗或两目暗黑，舌暗红或有瘀斑瘀点，脉涩或弦紧', analysis: '桃仁、红花为君，活血化瘀；川芎、赤芍为臣，助君活血祛瘀；当归、生地黄养血润燥，使祛瘀而不伤正；牛膝活血通经引血下行；桔梗、枳壳一升一降，宽胸行气；柴胡疏肝解郁；甘草调和诸药', caution: '孕妇忌用' }
+    ];
+    await Prescription.insertMany(prescriptions);
+    console.log(`${prescriptions.length} 个经典方剂已导入`);
 
     console.log('\n数据初始化完成！');
     console.log('管理员账号: admin / admin123');
