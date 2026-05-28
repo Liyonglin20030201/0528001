@@ -18,9 +18,14 @@
         <p>添加、编辑、删除经典方剂</p>
       </div>
       <div class="card admin-card" @click="$router.push('/admin/masters')">
-        <div class="admin-icon">👨‍⚕️</div>
+        <div class="admin-icon">🏆</div>
         <h3>名家管理</h3>
         <p>添加、编辑、删除名家信息</p>
+      </div>
+      <div class="card admin-card" @click="$router.push('/admin/experts')">
+        <div class="admin-icon">👨‍⚕️</div>
+        <h3>专家管理</h3>
+        <p>认证中医师、管理专家资格</p>
       </div>
     </div>
   </div>

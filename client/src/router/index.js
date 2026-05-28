@@ -21,7 +21,8 @@ const routes = [
   { path: '/admin/articles', component: () => import('../views/admin/ArticleManage.vue'), meta: { requiresAdmin: true } },
   { path: '/admin/herbs', component: () => import('../views/admin/HerbManage.vue'), meta: { requiresAdmin: true } },
   { path: '/admin/prescriptions', component: () => import('../views/admin/PrescriptionManage.vue'), meta: { requiresAdmin: true } },
-  { path: '/admin/masters', component: () => import('../views/admin/MasterManage.vue'), meta: { requiresAdmin: true } }
+  { path: '/admin/masters', component: () => import('../views/admin/MasterManage.vue'), meta: { requiresAdmin: true } },
+  { path: '/admin/experts', component: () => import('../views/admin/ExpertManage.vue'), meta: { requiresAdmin: true } }
 ]
 
 const router = createRouter({

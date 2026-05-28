@@ -132,4 +132,18 @@ router.get('/experts', async (req, res) => {
   }
 });
 
+router.get('/all', auth, adminAuth, async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    const query = {};
+    if (keyword) {
+      query.username = { $regex: keyword, $options: 'i' };
+    }
+    const users = await User.find(query).select('username email role expertInfo createdAt').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: '获取用户列表失败' });
+  }
+});
+
 module.exports = router;

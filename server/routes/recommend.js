@@ -8,25 +8,30 @@ const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// 体质类型 -> 适宜的药材分类（对应Herb模型category枚举值）
 const constitutionHerbMap = {
-  qi_deficiency: ['补虚药'],
+  qi_deficiency: ['补虚药', '消食药'],
   yang_deficiency: ['温里药', '补虚药'],
   yin_deficiency: ['补虚药', '清热药'],
   phlegm_dampness: ['化湿药', '利水渗湿药'],
-  damp_heat: ['清热药', '利水渗湿药'],
+  damp_heat: ['清热药', '利水渗湿药', '化湿药'],
   blood_stasis: ['活血化瘀药', '理气药'],
   qi_stagnation: ['理气药', '安神药'],
   special: ['解表药', '补虚药'],
-  balanced: ['补虚药']
+  balanced: ['补虚药', '清热药']
 };
 
+// 体质类型 -> 适宜的文章分类（对应Article模型category枚举值）
 const constitutionArticleMap = {
-  qi_deficiency: ['qi_deficiency'],
+  qi_deficiency: ['qi_deficiency', 'general'],
   yang_deficiency: ['yang_deficiency', 'winter'],
   yin_deficiency: ['yin_deficiency', 'autumn'],
   phlegm_dampness: ['phlegm_dampness', 'summer'],
+  damp_heat: ['general', 'summer'],
   blood_stasis: ['blood_stasis', 'spring'],
-  balanced: ['general']
+  qi_stagnation: ['general', 'spring'],
+  special: ['general'],
+  balanced: ['general', 'spring', 'summer', 'autumn', 'winter']
 };
 
 router.post('/browse', auth, async (req, res) => {
